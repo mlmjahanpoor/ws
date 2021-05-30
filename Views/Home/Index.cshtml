@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+Name:
+<input type="text" id="txtUserName" />
+<button onclick="connect()" class="btn btn-primary">connect</button>
+<hr />
+Msg:
+<input type="text" id="txtMsg" />
+<button onclick="SendMsg()" class="btn btn-primary">Send</button>
+
+
+
+
+<div class="bg-info" style="height:100px;overflow:scroll" id="divshow"></div>
+
+
+
+
+
+
+
+
+
+
+<video height="400" width="400" controls>
+
+    <source src="~/part1_Blazor.mp4" type="video/mp4">
+</video>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="div"></div>
+<form asp-controller="home" asp-action="register" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="form-control">
+        <input id="name" type="text" name="name" class="form-control" placeholder="Name" />
+    </div>
+    <div class="form-control">
+        <input id="family" type="text" name="family" class="form-control" placeholder="Family" />
+    </div>
+    <div class="form-control">
+        <input type="file" name="file" multiple class="form-control" placeholder="file" />
+    </div>
+    <button type="submit" id="btn" class="btn btn-light text-warning">Send</button>
+</form>
+@section Scripts{
+    <script>
+
+
+
+        $(document).on('click', '#btn', function () {
+            var myData = {
+                name: $("#name").val(), family: $("#family").val()
+            };
+
+            $.ajax({
+                url: "Home/Register",
+                type: "get",
+                dataType: "json",
+                data: myData,
+                success: function (data) {
+                    $("#div").text(data);
+                }
+            });
+
+        });
+
+
+    </script>
+
+    <script>
+        var ws;
+        function connect() {
+
+            var txtUserName = document.getElementById("txtUserName");
+            var uri = "wss://localhost:44319/wschat?name=" + txtUserName.value;
+
+            ws = new WebSocket(uri);
+
+            ws.onopen = function () {
+
+                var divshow = document.getElementById("divshow");
+                divshow.innerHTML += "Connected!";
+
+            }
+
+            ws.onmessage = function (inData) {
+                var divshow = document.getElementById("divshow");
+                divshow.innerHTML += "<br/>" + inData.data;
+                divshow.scroll(0, divshow.scrollHeight);
+            }
+        }
+
+        function SendMsg() {
+            var txtMsg = document.getElementById("txtMsg");
+            ws.send(txtMsg.value);
+            txtMsg.value = "";
+        }
+
+    </script>
+
+
+
+}
